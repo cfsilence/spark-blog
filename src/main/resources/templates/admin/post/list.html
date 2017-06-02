@@ -1,0 +1,93 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{fragments/admin}" th:with="loggedIn=${isLoggedIn}, year=${year}">
+
+<head>
+    <title>List Blog Posts</title>
+
+    <script>
+        $(document).ready(function(){
+            $('.delete-post').on('click', function(e){
+                e.preventDefault()
+                var id = $( this ).data( 'id' )
+                var postId = $( this ).data( 'postId' )
+                var publish = !$( this ).data( 'isPublished' )
+                var to = "/admin/post/publish?redirectTo=list" + '&postId=' + postId + '&publish=' + publish
+                var confirmModal = $('#confirmPublishModal')
+                if( publish ) {
+                    $('#confirmDelete').removeClass('btn-danger').addClass('btn-primary').find('#confirmDeleteLabel').html('Publish').closest('button').find('.fa').removeClass('fa-trash-o').addClass('fa-bullhorn')
+                    $('#publishAction').html('publish')
+                }
+                else {
+                    $('#confirmDelete').removeClass('btn-primary').addClass('btn-danger').find('#confirmDeleteLabel').html('Unpublish').closest('button').find('.fa').addClass('fa-trash-o').removeClass('fa-bullhorn')
+                    $('#publishAction').html('unpublish')
+                }
+
+                confirmModal.modal({show: 'false'})
+
+                $('body').on('click', '#cancelDelete', function(){
+                    confirmModal.modal('hide')
+                })
+
+                $('body').on('click', '#confirmDelete', function(){
+                    window.location = to
+                })
+
+                $('#confirmDeleteModal').modal('show')
+            })
+        })
+    </script>
+</head>
+
+<body>
+
+    <div layout:fragment="content">
+
+        <div th:if="${message}">
+            <div th:replace="fragments/successContainer :: successContainer(~{::.message})">
+                <div class="message"><span th:text="${message}"></span></div>
+            </div>
+        </div>
+
+        <h1>List Blog Posts</h1>
+
+        <div class="row pad-bottom-10">
+            <div class="col-sm-12">
+                <a th:href="@{~/admin/post/edit}" class="btn btn-primary"><i class="fa fa-edit"></i> Create New Blog Post</a>
+            </div>
+        </div>
+
+        <table class="table table-bordered table-portal">
+            <tr>
+                <th>Title</th>
+                <th>Published Date</th>
+                <th style="width: 35%;">Action</th>
+            </tr>
+            <div th:each="post : ${posts}">
+                <tr>
+                    <td th:text="${post.get('title')}"></td>
+                    <td> <span th:text="${@codes.recursive.util.FormattingUtil@dateFormat( post.getDate('published_date'), config.codes.recursive.dateFormat )}"></span></td>
+                    <td>
+                        <a th:href="@{~/admin/post/edit?id={id}(id=${post.get('id')})}" class="btn btn-sm btn-primary"><i class="fa fa-edit"></i> Edit Post</a>
+                        <th:block th:if="${post.get('is_published')}">
+                            <a th:href="@{~/blog/post/{id}(id=${post.get('id')})}" class="btn btn-sm btn-info" target="_blank"><i class="fa fa-external-link"></i> View Post</a>
+                        </th:block>
+                        <a href="#" th:data-post-id="${post.get('id')}" th:data-is-published="${post.get('is_published')}" th:classappend="${post.get('is_published')} ? 'btn-danger' : 'btn-primary'" class="btn btn-sm delete-post"><i th:classappend="${post.get('is_published')} ? 'fa-trash-o' : 'fa-bullhorn'" class="fa"></i> <span th:text="${post.get('is_published')} ? 'Unpublish' : 'Publish'"></span> Post</a>
+                    </td>
+                </tr>
+            </div>
+        </table>
+
+        <div th:utext="${@codes.recursive.util.FormattingUtil@paginate(postCount, request)}"></div>
+
+        <div th:replace="fragments/modal :: modal(~{::#modal}, 'confirmPublishModal', 'Are you sure?', true, ~{::#footer})">
+            <div id="modal">Are you sure you want to <span id="publishAction" class="bold">publish</span> this blog post?</div>
+            <div id="footer">
+                <button id="cancelDelete" class="btn btn-default">Cancel</button><button id="confirmDelete" class="btn btn-primary"><i class="fa"></i> <span id="confirmDeleteLabel">Publish</span></button>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>

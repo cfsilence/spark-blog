@@ -1,0 +1,317 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{fragments/admin}" th:with="loggedIn=${isLoggedIn}, year=${year}">
+
+<head>
+    <title>Edit Blog Post</title>
+
+    <script th:inline="javascript">
+        currentTags = [[${tagIds}]];
+        dateFormat = [[${config.codes.recursive.jsDateTimeFormat}]]
+    
+    </script>
+    <script src="/assets/edit-post.js"></script>
+    <script src="/assets/wysihtml5/wysihtml.min.js"></script>
+    <script src="/assets/wysihtml5/wysihtml.all-commands.min.js"></script>
+    <script src="/assets/wysihtml5/wysihtml.toolbar.min.js"></script>
+    <script src="/assets/wysihtml5/parser_rules/advanced_and_extended.js"></script>
+    <style>
+    .wysihtml-action-active, .wysihtml-command-dialog-opened,
+    .wysihtml-command-active {
+        box-shadow: inset 0 1px 6px rgba(0, 0, 0, 0.2);
+        background: #eee !important;
+    }
+    .wysihtml-sandbox{
+        height: 600px !important;
+    }
+    .nicehide {
+        resize: none !important;
+        overflow: hidden !important;
+        display: block !important;
+        width: 0 !important;
+        max-width: 0 !important;
+        height: 0 !important;
+        max-height: 0 !important;
+        margin: 0 0 0 15px;
+        padding: 1px !important;
+        float: left;
+        border: none;
+    }
+    
+    </style>
+</head>
+
+<body>
+
+<div layout:fragment="content">
+    <h1><span th:text="${post.get('id')} != null ? 'Edit' : 'Create'"></span> Blog Post</h1>
+
+    <div class="pad-bottom-10">
+        <a th:href="@{~/admin/post/list}" class="btn btn-primary"><i class="fa fa-angle-double-left"></i> List Blog Posts</a>
+    </div>
+
+    <div class="pad-bottom-10">
+        <th:block th:if="${message}">
+            <div th:replace="fragments/successContainer :: successContainer(~{::#saveMessage})">
+                <div id="saveMessage"><span th:text="${message}"></span></div>
+            </div>
+        </th:block>
+
+        <th:block th:if="${error}">
+            <div th:replace="fragments/errorContainer :: errorContainer(~{::#errorMessage})">
+                <div id="errorMessage"><span th:text="${error}"></span></div>
+            </div>
+        </th:block>
+    </div>
+
+    <form method="POST" class="form-horizontal">
+        <input type="hidden" th:value="${currentUser.get('id')}" name="authored_by_id" id="authored_by_id" />
+
+        <div th:replace="fragments/fieldContainer :: fieldContainer(${post}, 'title', 'Title', true, ~{::#title}, null, null)">
+            <input type="text" id="title" name="title" class="form-control" required="true" maxlength="250" th:value="${post.get('title')}">
+        </div>
+
+        <div th:replace="fragments/fieldContainer :: fieldContainer(${post}, 'keywords', 'Keywords', false, ~{::#keywords}, 'Keywords to associate with the metadata of this post.  The post\'s tags will also be included as keywords.', null)">
+            <input type="text" id="keywords" name="keywords" class="form-control" maxlength="500" th:value="${post.get('keywords')}">
+        </div>
+
+        <div th:replace="fragments/fieldContainer :: fieldContainer(${post}, 'summary', 'Summary', false, ~{::#summary}, 'The meta description to be included with this post.', null)">
+            <textarea id="summary" name="summary" class="form-control" maxlength="500">[[${post.get('summary')}]]</textarea>
+        </div>
+
+        <div th:replace="fragments/fieldContainer :: fieldContainer(${post}, 'published_date', 'Published Date', true, ~{::#published_date}, 'The date/time that this blog post will be published.', null)">
+            <input type="text" id="published_date" name="published_date" class="form-control datepicker" maxlength="250" th:value="${#dates.format( post.get('published_date'), config.codes.recursive.dateFormat)}">
+        </div>
+
+        <div th:replace="fragments/fieldContainer :: fieldContainer(${post}, 'post_tags', 'Tags', true, ~{::#tags}, 'The categories that this blog post will be filed under.  <a href=\'#\' id=\'addTagBtn\'>Add a tag.</a>', null)">
+            <select type="text" id="tags" name="tags" required="true" class="form-control" multiple="multiple"></select>
+        </div>
+
+        <div class="fieldcontainer form-group">
+            <div class="col-sm-offset-2 col-sm-8">
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" name="is_published" th:checked="${post.get('is_published')}" value="1" id="isPublished">
+                        Published?
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="fieldcontainer form-group">
+            <div class="col-sm-offset-2 col-sm-8">
+                <div id="toolbar" style="display: none;" class="pad-bottom-10">
+                    <div class="btn-group">
+                        <!--
+                        <a class="btn btn-sm btn-default" data-toggle="tooltip" data-container="body"
+                           data-wysihtml-command="justifyLeft" title="Left align text"><i class="fa fa-align-left"></i></a>
+                        <a class="btn btn-sm btn-default" data-toggle="tooltip" data-container="body"
+                           data-wysihtml-command="justifyCenter" title="Center text"><i class="fa fa-align-center"></i></a>
+                        <a class="btn btn-sm btn-default" data-toggle="tooltip" data-container="body"
+                           data-wysihtml-command="justifyRight" title="Right align text"><i
+                                class="fa fa-align-right"></i></a>
+                        -->
+                        <a class="btn btn-sm btn-default" data-toggle="tooltip" data-container="body"
+                           data-wysihtml-command="bold" title="Make text bold (CTRL + B)"><i class="fa fa-bold"></i>
+                        </a>
+                        <a class="btn btn-sm btn-default" data-toggle="tooltip" data-container="body"
+                           data-wysihtml-command="italic" title="Make text italic (CTRL + I)"><i class="fa fa-italic"></i>
+                        </a>
+                        <a class="btn btn-sm btn-default" data-toggle="tooltip" data-container="body"
+                           data-wysihtml-command="underline" title="Make text underlined (CTRL + u)"><i
+                                class="fa fa-underline"></i>
+                        </a>
+                        <a class="btn btn-sm btn-default" data-toggle="tooltip" data-container="body"
+                           data-wysihtml-command="strikethrough" title="Make text strikethrough"><i
+                                class="fa fa-strikethrough"></i>
+                        </a>
+                        <a class="btn btn-sm btn-default command" data-toggle="tooltip" data-container="body"
+                           data-wysihtml-command="createLink" title="Insert a link" href="javascript:;" unselectable="on"><i
+                                class="fa fa-link"></i>
+                        </a>
+                        <a class="btn btn-sm btn-default command" data-toggle="tooltip" data-container="body"
+                           data-wysihtml-command="insertImage" title="Insert an image" href="javascript:;"
+                           unselectable="on"><i class="fa fa-picture-o"></i>
+                        </a>
+                    </div>
+
+                    <div class="btn-group">
+                        <a class="btn btn-sm btn-default command" data-toggle="tooltip" data-container="body"
+                           data-wysihtml-command="insertHTML"
+                           data-wysihtml-command-value="[spoiler label=Spoiler]Spoiler Text Here[/spoiler]"
+                           title="Insert a spoiler tag" href="javascript:;" unselectable="on"><i
+                                class="fa fa-exclamation-circle"></i>
+                        </a>
+                        <a class="btn btn-sm btn-default command" data-toggle="tooltip" data-container="body"
+                           data-wysihtml-command="insertHTML" data-wysihtml-command-value="[gist id=]" title="Insert a gist"
+                           href="javascript:;" unselectable="on"><i class="fa fa-github"></i>
+                        </a>
+                        <a class="btn btn-sm btn-default command" data-toggle="tooltip" data-container="body"
+                           data-wysihtml-command="insertHTML" data-wysihtml-command-value="[youtube id=]"
+                           title="Embed a YouTube video" href="javascript:;" unselectable="on"><i class="fa fa-youtube"></i>
+                        </a>
+                    </div>
+                    <div class="btn-group">
+                        <a class="btn btn-sm btn-default command" data-toggle="tooltip" data-container="body"
+                           data-wysihtml-command="insertHTML"
+                           data-wysihtml-command-value="<div class='alert alert-info'>Info</div>"
+                           title="Insert an info alert" href="javascript:;" unselectable="on"><i
+                                class="fa fa-exclamation text-info"></i>
+                        </a>
+                        <a class="btn btn-sm btn-default command" data-toggle="tooltip" data-container="body"
+                           data-wysihtml-command="insertHTML"
+                           data-wysihtml-command-value="<div class='alert alert-success'>Success</div>"
+                           title="Insert a success alert" href="javascript:;" unselectable="on"><i
+                                class="fa fa-smile-o text-success"></i>
+                        </a>
+                        <a class="btn btn-sm btn-default command" data-toggle="tooltip" data-container="body"
+                           data-wysihtml-command="insertHTML"
+                           data-wysihtml-command-value="<div class='alert alert-warning'>Warning</div>"
+                           title="Insert a warning alert" href="javascript:;" unselectable="on"><i
+                                class="fa fa-exclamation-triangle text-warning"></i>
+                        </a>
+                        <a class="btn btn-sm btn-default command" data-toggle="tooltip" data-container="body"
+                           data-wysihtml-command="insertHTML"
+                           data-wysihtml-command-value="<div class='alert alert-danger'>Danger</div>"
+                           title="Insert a danger alert" href="javascript:;" unselectable="on"><i
+                                class="fa fa-minus-circle text-danger"></i>
+                        </a>
+                    </div>
+                    <div class="btn-group">
+                        <a class="btn btn-sm btn-default" data-toggle="tooltip" data-container="body"
+                           data-wysihtml-command="insertUnorderedList" title="Insert an unordered list"><i
+                                class="fa fa-list-ul"></i>
+                        </a>
+                        <a class="btn btn-sm btn-default" data-toggle="tooltip" data-container="body"
+                           data-wysihtml-command="insertOrderedList" title="Insert an ordered list"><i
+                                class="fa fa-list-ol"></i>
+                        </a>
+                        <a class="btn btn-sm btn-default" data-toggle="tooltip" data-container="body"
+                           data-wysihtml-command="formatBlock" data-wysihtml-command-value="p" title="Insert paragraph"><i
+                                class="fa fa-paragraph"></i>
+                        </a>
+                        <a class="btn btn-sm btn-default" data-toggle="tooltip" data-container="body"
+                           data-wysihtml-command="formatInline" data-wysihtml-command-value="code" title="Insert code"><i
+                                class="fa fa-code"></i>
+                        </a>
+                        <a class="btn btn-sm btn-default" data-toggle="tooltip" data-container="body"
+                           data-wysihtml-command="formatInline" data-wysihtml-command-value="pre" title="Insert pre">
+                            <small>pre</small>
+                        </a>
+                        <a class="btn btn-sm btn-default wysihtml-command-active" data-toggle="tooltip"
+                           data-container="body" data-wysihtml-command="insertBlockQuote" title="Insert blockquote"><i
+                                class="fa fa-quote-right"></i>
+                        </a>
+                    </div>
+                    <div class="btn-group">
+                        <a class="btn btn-sm btn-default" data-toggle="tooltip" data-container="body"
+                           data-wysihtml-command="formatBlock" data-wysihtml-command-value="h1" title="Insert headline 1"
+                           style=""><span style="font-size: 12px;">&nbsp;</span><i class="fa fa-header">1</i><span
+                                style="font-size: 12px;">&nbsp;</span>
+                        </a>
+                        <a class="btn btn-sm btn-default" data-toggle="tooltip" data-container="body"
+                           data-wysihtml-command="formatBlock" data-wysihtml-command-value="h2" title="Insert headline 2"
+                           style=""><span style="font-size: 12px;">&nbsp;</span><i class="fa fa-header">2</i><span
+                                style="font-size: 12px;">&nbsp;</span>
+                        </a>
+                        <a class="btn btn-sm btn-default" data-toggle="tooltip" data-container="body"
+                           data-wysihtml-command="formatBlock" data-wysihtml-command-value="h3" title="Insert headline 3"
+                           style=""><span style="font-size: 12px;">&nbsp;</span><i class="fa fa-header">3</i><span
+                                style="font-size: 12px;">&nbsp;</span>
+                        </a>
+                    </div>
+
+                    <div class="btn-group">
+                        <a class="btn btn-sm btn-default action" id="viewSourceBtn" href="javascript:;" unselectable="on"
+                           data-toggle="tooltip" data-container="body" data-wysihtml-action="change_view" title="Show HTML"><i
+                                class="fa fa-code"></i>
+                        </a>
+                        <a class="btn btn-sm btn-default help-modal-trigger pointer" data-toggle="tooltip"
+                           data-container="body" title="Blog Editor Help" unselectable="on"><i class="fa fa-question"></i>
+                        </a>
+                    </div>
+
+                    <div data-wysihtml-dialog="createLink" style="display: none;" class="pad-top-10">
+                        <div class="well">
+                            <label>
+                                Link:
+                                <input data-wysihtml-dialog-field="href" value="http://" class="form-control">
+                            </label>
+                            <label>
+                                Target:
+                                <input data-wysihtml-dialog-field="target" value="_blank" class="form-control">
+                            </label>
+                            <a data-wysihtml-dialog-action="save" class="btn btn-primary btn-sm">OK</a>&nbsp;<a
+                                data-wysihtml-dialog-action="cancel" class="btn btn-sm btn-default">Cancel</a>
+                        </div>
+                    </div>
+                    <div data-wysihtml-dialog="insertImage" style="display: none;" class="pad-top-10">
+                        <div class="well">
+                            <label>
+                                Src:
+                                <input data-wysihtml-dialog-field="src" value="http://" class="form-control">
+                            </label>
+                            <label>
+                                Class:
+                                <input data-wysihtml-dialog-field="class" value="img-responsive" class="form-control">
+                            </label>
+                            <a data-wysihtml-dialog-action="save" class="btn btn-primary btn-sm">OK</a>&nbsp;<a
+                                data-wysihtml-dialog-action="cancel" class="btn btn-sm btn-default">Cancel</a>
+                        </div>
+                    </div>
+                </div>
+                <textarea id="wysihtml-textarea" name="article" rows="25" class="form-control" required="required">
+                    [(${post.get('article')})]
+                </textarea>
+            </div>
+        </div>
+
+        <div th:replace="fragments/messageContainer :: messageContainer(~{::#saveMsg})">
+            <div id="saveMsg">
+                <div class="text-center">
+                    <button id="btnSubmit" name="btnSubmit" class="btn btn-primary">Save</button>
+                    <a th:href="@{~/admin/post/list}" class="btn btn-default">Cancel</a>
+                </div>
+            </div>
+        </div>
+
+    </form>
+
+    <div th:replace="fragments/modal :: modal(~{::#newTagModal}, 'newTagModal', 'Create A New Tag', true, ~{::#newTagFooter})">
+        <div id="newTagModal">
+            <div class="form-group">
+                <input type="text" id="newTag" name="newTag" class="form-control" maxlength="50"/>
+            </div>
+        </div>
+        <div id="newTagFooter">
+            <button id="saveNewTagBtn" type="button" class="btn btn-primary">Save Tag</button>
+            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        </div>
+    </div>
+
+    <div th:replace="fragments/modal :: modal(~{::#helpModal}, 'helpModal', 'Editor Help', true, ~{::#helpFooter})">
+        <div id="helpModal">
+            <h4>You can use the following tags in a blog post:</h4>
+            <p>
+                <b>[gist id=]</b>: Insert a gist from github. Pass the ID from the URL. Shortcut: click the GitHub
+                button in the toolbar.
+            </p>
+            <p>
+                <b>[youtube id=]</b>: Embed a YouTube video. Pass the ID from the URL. Shortcut: click the YouTube
+                button in the toolbar.
+            </p>
+            <p>
+                <b>[spoiler label="Spoiler"]content[/spoiler]</b>: Hide content until the reader clicks on the link
+                rendered in the blog post. Pass a 'label' or what will be used as the trigger text for the spoiler
+                content. Shortcut: click the 'spoiler' button in the toolbar.
+            </p>
+        </div>
+        <div id="helpFooter">
+            <button id="cancelDelete" data-dismiss="modal" class="btn btn-default">Close</button>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,50 @@
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{fragments/main}" th:with="loggedIn=${isLoggedIn}, year=${year}">
+
+<head>
+    <title>Contact</title>
+</head>
+
+<body>
+<div layout:fragment="content">
+    <h1>Contact</h1>
+
+    <div class="pad-bottom-10">
+        <th:block th:if="${message}">
+            <div th:replace="fragments/successContainer :: successContainer(~{::#saveMessage})">
+                <div id="saveMessage"><span th:text="${message}"></span></div>
+            </div>
+        </th:block>
+
+        <th:block th:if="${error}">
+            <div th:replace="fragments/errorContainer :: errorContainer(~{::#errorMessage})">
+                <div id="errorMessage"><span th:text="${error}"></span></div>
+            </div>
+        </th:block>
+    </div>
+
+    <form method="POST" class="form-horizontal">
+
+        <div th:replace="fragments/fieldContainer :: fieldContainer(${contact}, 'name', 'Name', true, ~{::#name}, null, null)">
+            <input type="text" id="name" name="name" class="form-control" required="true" maxlength="100" th:value="${contact.get('name')}">
+        </div>
+
+        <div th:replace="fragments/fieldContainer :: fieldContainer(${contact}, 'email', 'Email', true, ~{::#email}, null, null)">
+            <input type="text" id="email" name="email" class="form-control" required="true" maxlength="250" th:value="${contact.get('email')}">
+        </div>
+
+        <div th:replace="fragments/fieldContainer :: fieldContainer(${contact}, 'comments', 'Comments', true, ~{::#comments}, null, null)">
+            <textArea id="comments" name="comments" rows="10" class="form-control" required="true" maxlength="4000">[[${contact.get('comments')}]]</textArea>
+        </div>
+
+        <div class="fieldcontainer form-group required">
+            <label class="col-sm-2 control-label" for="contactSubmit">&nbsp;</label>
+            <div class="col-sm-4">
+                <input type="submit" value="Send" id="contactSubmit" class="btn btn-primary btn-sm" />
+            </div>
+        </div>
+
+    </form>
+</div>
+</body>
+</html>

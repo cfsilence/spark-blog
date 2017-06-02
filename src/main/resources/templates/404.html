@@ -1,0 +1,13 @@
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{fragments/main}" th:with="loggedIn=${isLoggedIn}, year=${year}">
+
+<head>
+    <title>404</title>
+</head>
+
+<body>
+<div layout:fragment="content">
+    <h1>404...Not Found</h1>
+</div>
+</body>
+</html>

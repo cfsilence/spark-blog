@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <title layout:title-pattern="$CONTENT_TITLE - $LAYOUT_TITLE">recursive.codes</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <link rel="shortcut icon" href="/assets/favicon.ico" type="image/x-icon"/>
+    <link rel="stylesheet" href="/assets/application.css"/>
+    <script src="/assets/admin-application.js"></script>
+
+    <link href='https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet'
+          type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800'
+          rel='stylesheet' type='text/css'>
+    <link rel="alternate" type="application/rss+xml" title="recursive.codes RSS Feed" href="/blog/feed"/>
+    <th:block th:utext="${@codes.recursive.util.FormattingUtil@googleAnalytics()}"/>
+</head>
+
+<body>
+
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top navbar-admin">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#lower-nav">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a th:href="@{~/admin/post/list}" class="navbar-brand">Admin</a>
+        </div>
+
+        <div id="lower-nav" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li class="dropdown "><a href="/page/index" class="nav-links">Blog</a></li>
+                <li class="dropdown-toggle dropdown-title ">
+                    <a href="#" class="dropdown-toggle dropdown-title" data-toggle="dropdown" role="button"
+                       aria-haspopup="true" aria-expanded="false">
+                        Users <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li class=" "><a href="/admin/user/list" class="nav-links">List Users</a></li>
+                        <li class=" "><a href="/admin/user/edit" class="nav-links">New User</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown-toggle dropdown-title ">
+                    <a href="#" class="dropdown-toggle dropdown-title" data-toggle="dropdown" role="button"
+                       aria-haspopup="true" aria-expanded="false">
+                        Posts <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li class=" "><a href="/admin/post/list" class="nav-links">List Posts</a></li>
+                        <li class=" "><a href="/admin/post/edit" class="nav-links">New Post</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown "><a href="/logout" class="nav-links">Logout</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Main Content -->
+<div class="container-admin">
+    <div layout:fragment="content"></div>
+</div>
+
+<hr>
+
+<!-- Footer -->
+<footer>
+</footer>
+
+</body>
+</html>

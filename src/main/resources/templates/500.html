@@ -1,0 +1,51 @@
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{fragments/main}" th:with="loggedIn=${isLoggedIn}, year=${year}">
+
+<head>
+    <title>Error</title>
+    <script>
+        $(document).ready(function(){
+            $('.snippet').on('click', function(){
+                var fileName = $(this).data('filename')
+                var lineNumber = $(this).data('linenumber')
+                $.ajax({
+                    url: '/snippet?fileName=' + fileName + '&line=' + lineNumber,
+                    success: function(response){
+                        $('#snippetModal').modal('show').find('.snippetContainer').html(response)
+                    }
+                })
+                return false
+            })
+        })
+    </script>
+</head>
+
+<body>
+<div layout:fragment="content">
+    <h1>An Error Has Occurred</h1>
+    <div th:if="${config.environment} == 'dev'">
+        <div th:if="${exception}">
+            <h2>Message:</h2>
+            <h3 class="text-danger" th:text="${exception.message} ?: 'No Message'"></h3>
+            <h2>Cause:</h2>
+            <h3 class="text-info" th:text="${exception.cause} ?: 'No Cause'"></h3>
+            <h2>Stack Trace:</h2>
+            <dl>
+                <th:block th:each="t : ${exception.stackTrace}">
+                    <th:block th:with="isGroovy=${#bools.isTrue(@codes.recursive.util.FormattingUtil@stringContains(t.fileName, '.groovy'))}">
+                        <dt th:styleappend="${isGroovy} ? '' : 'font-weight: normal;'"><code th:classappend="${#bools.isTrue(@codes.recursive.util.FormattingUtil@stringContains(t.fileName, '.groovy'))} ? '' : 'text-muted'">at [[${t.className}]].[[${t.methodName}]](<a href="#" class="snippet" th:attr="data-filename=${t.fileName},data-lineNumber=${t.lineNumber}" th:if="${isGroovy}">[[${t.fileName}]]:[[${t.lineNumber}]]</a><span th:if="${!isGroovy}">[[${t.fileName}]]:[[${t.lineNumber}]]</span></span>)</code></dt>
+                    </th:block>
+                </th:block>
+            </dl>
+        </div>
+    </div>
+
+    <div th:replace="fragments/modal :: modal(~{::#snippetModal}, 'snippetModal', 'Source Code', true, null)">
+        <div id="snippetModal">
+            <div class="snippetContainer"></div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

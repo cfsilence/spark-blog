@@ -1,0 +1,52 @@
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{fragments/main}" th:with="loggedIn=${isLoggedIn}, year=${year}">
+
+<head>
+    <title th:text="${post.get('title')}"></title>
+    <th:block th:with="article=${@codes.recursive.util.FormattingUtil@makeDescription(#strings.toString(post.get('article')))}">
+        <meta name="description" th:content="${post.get('summary')} ?: ${article}" />
+    </th:block>
+    <meta name="keywords" th:content="${#strings.arrayJoin(tags,',') + keywords}" th:with="keywords=${post.get('keywords')} ? ',' + ${post.get('keywords')} : ''" />
+    <meta name="author" th:content="${@codes.recursive.util.FormattingUtil@formatFullName( post.parent(@codes.recursive.domain.User@class) )}" />
+
+    <link rel="stylesheet" href="/assets/jssocials.css" />
+    <link rel="stylesheet" href="/assets/jssocials-theme-flat.css" />
+    <script src="/assets/jssocials.js"></script>
+    <script>
+        $().ready(function(){
+            $("#share").jsSocials({
+                shares: ["twitter", "facebook", "googleplus", "linkedin", "pinterest", "whatsapp", "email"]
+            });
+        })
+    </script>
+</head>
+
+<body>
+<div layout:fragment="content">
+    <h1 th:text="${post.get('title')}"></h1>
+    <h5>Posted by <span th:text="${@codes.recursive.util.FormattingUtil@formatFullName( post.parent(@codes.recursive.domain.User@class) )}"></span> on <span th:text="${@codes.recursive.util.FormattingUtil@dateFormat( post.getDate('published_date'), config.codes.recursive.dateFormat )}"></span></h5>
+    <div th:if="${tags.size()} > 0">
+        <h6 class="upper">Tagged:
+            <th:block th:each="tag, status : ${tags}">
+                <a th:href="@{~/page/tagged/{tag}(tag=${tag})}"><span th:text="${tag}"></span><span th:if="${status.index != #lists.size(tags)-1}">, </span></a>
+            </th:block>
+        </h6>
+    </div>
+    <div class="">
+        <div th:utext="${@codes.recursive.util.FormattingUtil@render( post.get('article'), config )}"></div>
+    </div>
+    <hr/>
+
+    <div class=" pad-bottom-10">
+        <div th:utext="${@codes.recursive.util.FormattingUtil@adsense()}"></div>
+    </div>
+
+    <hr/>
+    <div id="share"></div>
+    <hr/>
+
+    <div th:utext="${@codes.recursive.util.FormattingUtil@disqus( post.get('id'), config.serverURL, pathInfo, config.environment )}"></div>
+
+</div>
+</body>
+</html>

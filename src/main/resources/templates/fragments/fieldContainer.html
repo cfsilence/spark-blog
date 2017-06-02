@@ -1,0 +1,10 @@
+<div th:fragment="fieldContainer(bean, field, label, required, input, helpText, labelClass)" th:with="errors=${bean.errors().get(field)}"
+     th:class="${required} ? 'fieldcontainer form-group required' : 'fieldcontainer form-group '"
+     th:classappend="${errors} ? 'has-error' : ''">
+    <label class="control-label" th:classappend="${labelClass} ?: 'col-sm-2'" th:for="${field}"><span class="required-indicator" th:if="${required}">*</span><span th:text="${label}"></span></label>
+    <div th:classappend="${controlClass} ?: 'col-sm-7'">
+        <th:block th:replace="${input}" />
+        <span class="help-block" th:if="${helpText}" th:utext="${helpText}"></span>
+        <span class="help-block" th:if="${errors}" th:text="${errors}"></span>
+    </div>
+</div>

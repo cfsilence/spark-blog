@@ -1,0 +1,47 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{fragments/admin}" th:with="loggedIn=${isLoggedIn}, year=${year}">
+
+<head>
+    <title>List Users</title>
+</head>
+
+<body>
+
+    <div layout:fragment="content">
+
+        <div th:if="${message}">
+            <div th:replace="fragments/successContainer :: successContainer(~{::.message})">
+                <div class="message"><span th:text="${message}"></span></div>
+            </div>
+        </div>
+
+        <h1>List Users</h1>
+
+        <div class="row pad-bottom-10">
+            <div class="col-sm-12">
+                <a th:href="@{~/admin/user/edit}" class="btn btn-primary"><i class="fa fa-edit"></i> Create New User</a>
+            </div>
+        </div>
+
+        <table class="table table-bordered table-portal">
+            <tr>
+                <th>Name</th>
+                <th style="width: 10%;">Action</th>
+            </tr>
+            <div th:each="user : ${users}">
+                <tr>
+                    <td th:text="${@codes.recursive.util.FormattingUtil@formatFullName(user)}"></td>
+                    <td>
+                        <a th:href="@{~/admin/user/edit?id={id}(id=${user.get('id')})}" class="btn btn-sm btn-primary"><i class="fa fa-edit"></i> Edit User</a>
+                    </td>
+                </tr>
+            </div>
+        </table>
+
+        <div th:utext="${@codes.recursive.util.FormattingUtil@paginate(userCount, request)}"></div>
+
+    </div>
+
+</body>
+</html>

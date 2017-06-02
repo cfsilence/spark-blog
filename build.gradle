@@ -1,0 +1,81 @@
+group 'codes.recursive'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'idea'
+apply plugin: 'groovy'
+apply plugin: 'java'
+apply plugin: 'org.javalite.activejdbc'
+
+buildscript {
+    repositories {
+        mavenCentral()
+        maven { url 'http://repo.javalite.io' }
+    }
+    dependencies {
+        classpath group: 'org.javalite', name: 'activejdbc-gradle-plugin', version: '1.4.13-SNAPSHOT'
+        classpath "com.bertramlabs.plugins:asset-pipeline-gradle:2.10.1"
+    }
+}
+
+apply plugin: 'com.bertramlabs.asset-pipeline'
+
+repositories {
+    mavenCentral()
+    maven { url 'http://repo.javalite.io' }
+}
+
+configurations {
+    localGroovyConf
+}
+
+dependencies {
+    localGroovyConf localGroovy()
+
+    compile 'org.codehaus.groovy:groovy-all:2.3.11'
+    compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.21'
+    compile 'com.sparkjava:spark-core:2.5.5'
+    compile group: 'com.sparkjava', name: 'spark-template-thymeleaf', version: '2.5.5'
+    compile group: 'nz.net.ultraq.thymeleaf', name: 'thymeleaf-layout-dialect', version: '2.2.1'
+
+    compile group: 'mysql', name: 'mysql-connector-java', version: '5.1.36'
+    compile group: 'org.javalite', name: 'activejdbc', version: '1.4.13'
+    compile group: 'org.javalite', name: 'activejdbc-instrumentation', version: '1.4.13'
+
+    compile group: 'com.amazonaws', name: 'aws-java-sdk', version: '1.11.119'
+
+    compile group: 'org.mindrot', name: 'jbcrypt', version: '0.3m'
+
+}
+
+task copyAssets(type: Copy) {
+    from "build/assets"
+    into "build/resources/main/static/assets"
+    doLast{
+        if( System.getProperty('environment') != 'dev' ) {
+            delete "build/assets"
+        }
+    }
+}
+
+task runServer(type: JavaExec) {
+    dependsOn 'classes'
+    dependsOn 'assetCompile'
+    dependsOn 'copyAssets'
+    classpath = sourceSets.main.runtimeClasspath
+    main = 'Bootstrap'
+}
+
+task runDev(type: JavaExec) {
+    System.setProperty('environment', 'dev')
+
+    dependsOn 'classes'
+    dependsOn 'assetCompile'
+    dependsOn 'copyAssets'
+    classpath = sourceSets.main.runtimeClasspath
+    main = 'Bootstrap'
+    systemProperties = System.getProperties()
+}
+
+assets {
+    minifyJs = System.getProperty('environment') != 'dev'
+}

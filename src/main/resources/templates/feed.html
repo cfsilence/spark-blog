@@ -1,0 +1,18 @@
+<rss version="2.0">
+    <channel>
+        <title>recursive.codes</title>
+        <link>${grailsApplication.config.grails.serverURL}</link>
+        <description>The personal blog of Todd Sharp</description>
+        <image>
+            <url>[[${config.serverURL}]]/assets/favicon.ico</url>
+            <title>recursive.codes</title>
+            <link>[[${config.serverURL}]]</link>
+        </image>
+        <item th:each="post : ${posts}">
+            <title>[[${post.get('title')}]]</title>
+            <link>[[${config.serverURL}]]/blog/post/[[${post.get('id')}]]</link>
+            <pubDate>[[${@codes.recursive.util.FormattingUtil@dateFormat( post.getDate('published_date'), config.codes.recursive.dateFormat )}]]</pubDate>
+            <description><![CDATA[ [[${post.get('article')}]] ]]></description>
+        </item>
+    </channel>
+</rss>

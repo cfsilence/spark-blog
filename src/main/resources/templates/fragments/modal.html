@@ -1,0 +1,20 @@
+<div th:fragment="modal(body, id, title, closable, footer)">
+    <div class="modal" th:id="${id}" tabindex="-1" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div th:if="${closable}">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    </div>
+                    <h4 class="modal-title" th:text="${title}"></h4>
+                </div>
+                <div class="modal-body">
+                    <th:block th:replace="${body}"/>
+                </div>
+                <div class="modal-footer" th:if="${footer}">
+                    <th:block th:replace="${footer}"/>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

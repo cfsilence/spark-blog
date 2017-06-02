@@ -1,0 +1,30 @@
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org"
+      layout:decorate="~{fragments/main}" th:with="loggedIn=${isLoggedIn}, year=${year}">
+
+<head>
+    <title>Home</title>
+</head>
+
+<body>
+<div layout:fragment="content">
+    <div class="row">
+        <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+            <h1 th:if="${tag}" class="text-info">Posts tagged '<span th:text="${tag}"></span>'</h1>
+
+            <div th:each="post, status : ${posts}">
+                <div class="post-preview">
+                    <a th:href="@{~/blog/post/{id}(id=${post.get('id')})}">
+                        <h2 class="post-title" th:text="${post.get('title')}"></h2>
+                        <h3 class="post-subtitle" th:utext="${@codes.recursive.util.FormattingUtil@truncatePost( post.get('article' ) )}"></h3>
+                    </a>
+                    <p class="post-meta">Posted by <span th:text="${@codes.recursive.util.FormattingUtil@formatFullName( post.parent(@codes.recursive.domain.User@class) )}"></span> on <span th:text="${@codes.recursive.util.FormattingUtil@dateFormat( post.getDate('published_date'), config.codes.recursive.dateFormat )}"></span></p>
+                </div>
+                <hr>
+            </div>
+
+            <div th:utext="${@codes.recursive.util.FormattingUtil@paginate(totalPosts, request)}"></div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
